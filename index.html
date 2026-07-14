@@ -1,0 +1,408 @@
+<!doctype html>
+<html lang="bg">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#0284c7" />
+    <meta name="description" content="Детска игра за учене и разпознаване на автомобилни марки" />
+    <title>Коли — уча марките</title>
+    <link rel="icon" href="/icons/icon.svg" type="image/svg+xml" />
+    <script type="module" src="/src/main.js"></script>
+    <style>
+      [x-cloak] {
+        display: none !important;
+      }
+    </style>
+  </head>
+  <body
+    x-data="appRoot"
+    :class="{ 'no-animations': noAnim }"
+    @contextmenu.prevent
+    @dragstart.prevent
+    class="relative h-full overflow-hidden font-sans text-kid-ink"
+  >
+    <!-- ══════════ НАЧАЛЕН ЕКРАН (FR-001, FR-002) ══════════ -->
+    <main x-show="screen === 'home'" x-cloak class="flex h-full flex-col p-6">
+      <h1 class="mt-2 text-center text-4xl font-black text-kid-accent">
+        <span aria-hidden="true">🚗</span> Коли
+      </h1>
+
+      <div class="flex min-h-0 flex-1 items-center justify-center">
+        <div class="grid w-full max-w-4xl grid-cols-1 gap-6 min-[600px]:grid-cols-3">
+          <button
+            @click="go('learn')"
+            class="btn-kid card-kid flex-col gap-3 py-10 text-4xl"
+            aria-label="Учим марки"
+          >
+            <span class="text-8xl" aria-hidden="true">📖</span>
+            <span>Учим</span>
+          </button>
+          <button
+            @click="go('quiz')"
+            class="btn-kid card-kid flex-col gap-3 py-10 text-4xl"
+            aria-label="Познай марката"
+          >
+            <span class="text-8xl" aria-hidden="true">❓</span>
+            <span>Познай</span>
+          </button>
+          <button
+            @click="go('favorites')"
+            class="btn-kid card-kid flex-col gap-3 py-10 text-4xl"
+            aria-label="Любими марки"
+          >
+            <span class="text-8xl" aria-hidden="true">❤️</span>
+            <span>Любими</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Родителски вход: задържане + задача (FR-040), встрани от детските бутони -->
+      <div x-data="parentGate">
+        <button
+          @pointerdown="startHold()"
+          @pointerup="cancelHold()"
+          @pointerleave="cancelHold()"
+          @pointercancel="cancelHold()"
+          class="btn-kid absolute bottom-4 right-4 !bg-transparent !shadow-none text-4xl opacity-40 transition-transform"
+          :class="holding && 'scale-125 opacity-80'"
+          aria-label="Родителски настройки — задръжте бутона"
+        >
+          <span aria-hidden="true">⚙️</span>
+        </button>
+
+        <div
+          x-show="open"
+          x-cloak
+          class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-6"
+          @click.self="open = false"
+          role="dialog"
+          aria-label="Родителска проверка"
+        >
+          <div class="card-kid w-full max-w-md p-8 text-center">
+            <p class="text-2xl font-bold text-kid-muted">За родители</p>
+            <p class="mb-6 mt-2 text-4xl font-black">
+              Колко е <span x-text="a"></span> + <span x-text="b"></span>?
+            </p>
+            <div class="grid grid-cols-3 gap-4">
+              <template x-for="o in opts" :key="o">
+                <button @click="answer(o)" class="btn-kid h-20 text-3xl" x-text="o"></button>
+              </template>
+            </div>
+            <button @click="open = false" class="btn-kid mt-6 w-full text-xl">Затвори</button>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- ══════════ РЕЖИМ „УЧИМ“ (4.2) ══════════ -->
+    <main
+      x-show="screen === 'learn'"
+      x-cloak
+      x-data="learnScreen(false)"
+      @touchstart.passive="touchStart($event)"
+      @touchend.passive="touchEnd($event)"
+      class="flex h-full flex-col p-4"
+    >
+      <div class="flex items-center justify-between">
+        <button @click="go('home')" class="btn-kid w-24 text-3xl" aria-label="Начало">
+          <span aria-hidden="true">🏠</span>
+        </button>
+        <button
+          @click="toggleFav()"
+          class="btn-kid w-24 text-3xl"
+          :aria-label="brand && $store.db.isFav(brand.id) ? 'Премахни от любими' : 'Добави в любими'"
+        >
+          <span x-text="brand && $store.db.isFav(brand.id) ? '❤️' : '🤍'" aria-hidden="true"></span>
+        </button>
+      </div>
+
+      <template x-if="brand">
+        <div class="flex min-h-0 flex-1 flex-col items-center justify-center gap-3">
+          <!-- UX-003: емблемата доминира екрана, без деформация -->
+          <button
+            @click="speak()"
+            class="card-kid flex h-[48vh] w-auto max-w-[82vw] items-center justify-center p-6"
+            :class="pop && 'anim-pop'"
+            aria-label="Чуй името на марката"
+          >
+            <img
+              :src="asset(brand.logo)"
+              :alt="brand.nameBg"
+              class="max-h-full max-w-full object-contain"
+              draggable="false"
+            />
+          </button>
+          <!-- FR-011: българско и оригинално име, минимум 28px (UX-002) -->
+          <p class="text-5xl font-black" x-text="brand.nameBg"></p>
+          <p class="text-3xl font-semibold text-kid-muted" x-text="brand.name"></p>
+        </div>
+      </template>
+
+      <!-- FR-013: големи бутони за навигация -->
+      <div class="flex items-center justify-center gap-6 pb-2">
+        <button @click="prev()" class="btn-kid h-24 w-36 text-5xl" aria-label="Предишна марка">
+          <span aria-hidden="true">◀️</span>
+        </button>
+        <button @click="speak()" class="btn-kid h-24 w-36 text-5xl" aria-label="Чуй името">
+          <span aria-hidden="true">🔊</span>
+        </button>
+        <button @click="next()" class="btn-kid h-24 w-36 text-5xl" aria-label="Следваща марка">
+          <span aria-hidden="true">▶️</span>
+        </button>
+      </div>
+    </main>
+
+    <!-- ══════════ РЕЖИМ „ЛЮБИМИ“ (FR-031) ══════════ -->
+    <main
+      x-show="screen === 'favorites'"
+      x-cloak
+      x-data="learnScreen(true)"
+      @touchstart.passive="touchStart($event)"
+      @touchend.passive="touchEnd($event)"
+      class="flex h-full flex-col p-4"
+    >
+      <div class="flex items-center justify-between">
+        <button @click="go('home')" class="btn-kid w-24 text-3xl" aria-label="Начало">
+          <span aria-hidden="true">🏠</span>
+        </button>
+        <button
+          x-show="brand"
+          @click="toggleFav()"
+          class="btn-kid w-24 text-3xl"
+          aria-label="Премахни от любими"
+        >
+          <span aria-hidden="true">❤️</span>
+        </button>
+      </div>
+
+      <template x-if="!items.length">
+        <div class="flex flex-1 flex-col items-center justify-center gap-6 p-6 text-center">
+          <p class="text-7xl" aria-hidden="true">🤍</p>
+          <p class="max-w-xl text-3xl font-bold text-kid-muted">
+            Още няма любими марки. Натисни сърчицето при някоя марка, за да я запазиш тук.
+          </p>
+          <button @click="go('learn')" class="btn-kid px-10 py-4 text-3xl">
+            Към Учим <span aria-hidden="true">📖</span>
+          </button>
+        </div>
+      </template>
+
+      <template x-if="brand">
+        <div class="flex min-h-0 flex-1 flex-col items-center justify-center gap-3">
+          <button
+            @click="speak()"
+            class="card-kid flex h-[48vh] w-auto max-w-[82vw] items-center justify-center p-6"
+            :class="pop && 'anim-pop'"
+            aria-label="Чуй името на марката"
+          >
+            <img
+              :src="asset(brand.logo)"
+              :alt="brand.nameBg"
+              class="max-h-full max-w-full object-contain"
+              draggable="false"
+            />
+          </button>
+          <p class="text-5xl font-black" x-text="brand.nameBg"></p>
+          <p class="text-3xl font-semibold text-kid-muted" x-text="brand.name"></p>
+        </div>
+      </template>
+
+      <div x-show="items.length" class="flex items-center justify-center gap-6 pb-2">
+        <button @click="prev()" class="btn-kid h-24 w-36 text-5xl" aria-label="Предишна марка">
+          <span aria-hidden="true">◀️</span>
+        </button>
+        <button @click="speak()" class="btn-kid h-24 w-36 text-5xl" aria-label="Чуй името">
+          <span aria-hidden="true">🔊</span>
+        </button>
+        <button @click="next()" class="btn-kid h-24 w-36 text-5xl" aria-label="Следваща марка">
+          <span aria-hidden="true">▶️</span>
+        </button>
+      </div>
+    </main>
+
+    <!-- ══════════ РЕЖИМ „ПОЗНАЙ“ (4.3) ══════════ -->
+    <main x-show="screen === 'quiz'" x-cloak x-data="quizScreen" class="flex h-full flex-col p-4">
+      <div class="flex items-center gap-4">
+        <button @click="go('home')" class="btn-kid w-24 text-3xl" aria-label="Начало">
+          <span aria-hidden="true">🏠</span>
+        </button>
+        <template x-if="target && !notEnough">
+          <button
+            @click="ask()"
+            class="btn-kid flex-1 justify-start gap-4 px-6 py-3"
+            aria-label="Чуй въпроса отново"
+          >
+            <span class="text-4xl" aria-hidden="true">🔊</span>
+            <span class="text-4xl font-black">Къде е <span x-text="target.nameBg"></span>?</span>
+          </button>
+        </template>
+      </div>
+
+      <!-- FR-034: съобщение към родителя при < 2 активни марки -->
+      <template x-if="notEnough">
+        <div class="flex flex-1 items-center justify-center p-6 text-center">
+          <p class="max-w-2xl text-3xl font-bold text-kid-muted">
+            За играта са нужни поне две активни марки. Родител може да ги включи от настройките
+            <span aria-hidden="true">⚙️</span>
+          </p>
+        </div>
+      </template>
+
+      <template x-if="!notEnough && target">
+        <div class="grid min-h-0 flex-1 grid-cols-2 items-stretch gap-6 p-4">
+          <template x-for="o in options" :key="target.id + ':' + o.id">
+            <button
+              @click="pick(o)"
+              class="card-kid relative flex items-center justify-center p-8"
+              :class="{
+                'ring-8 ring-kid-good !bg-kid-good-soft anim-pop': correctId === o.id,
+                'anim-nudge opacity-70': wrongId === o.id
+              }"
+              :aria-label="o.nameBg"
+            >
+              <img
+                :src="asset(o.logo)"
+                alt=""
+                aria-hidden="true"
+                class="max-h-[42vh] max-w-full object-contain"
+                draggable="false"
+              />
+              <template x-if="correctId === o.id">
+                <div
+                  class="pointer-events-none absolute inset-0 flex items-center justify-center gap-4"
+                  aria-hidden="true"
+                >
+                  <template x-for="s in stars" :key="s">
+                    <span class="anim-star text-5xl" :style="`animation-delay:${s * 90}ms`">⭐</span>
+                  </template>
+                </div>
+              </template>
+            </button>
+          </template>
+        </div>
+      </template>
+    </main>
+
+    <!-- ══════════ РОДИТЕЛСКИ ЕКРАН (4.5) ══════════ -->
+    <main x-show="screen === 'parent'" x-cloak x-data="parentScreen" class="h-full overflow-y-auto p-6">
+      <div class="mx-auto max-w-4xl space-y-8 pb-16">
+        <header class="flex items-center justify-between">
+          <h2 class="text-3xl font-black">Родителски настройки</h2>
+          <button @click="go('home')" class="btn-kid px-8 text-2xl">
+            Готово <span aria-hidden="true">✔️</span>
+          </button>
+        </header>
+
+        <section class="card-kid space-y-4 p-6">
+          <h3 class="text-2xl font-bold">Настройки</h3>
+          <template x-for="row in settingsRows" :key="row.key">
+            <label class="flex min-h-16 cursor-pointer items-center justify-between gap-4">
+              <span class="text-xl font-semibold" x-text="row.label"></span>
+              <input
+                type="checkbox"
+                class="toggle-kid h-8 w-8 accent-kid-accent"
+                :checked="$store.db.settings[row.key]"
+                @change="$store.db.setSetting(row.key, $event.target.checked)"
+              />
+            </label>
+          </template>
+        </section>
+
+        <section class="card-kid p-6">
+          <h3 class="text-2xl font-bold">Ниво</h3>
+          <p class="mt-1 text-kid-muted">
+            Всяко ниво включва марките от предишните. Изборът презаписва ръчните отметки долу.
+          </p>
+          <div class="mt-4 grid grid-cols-1 gap-3 min-[600px]:grid-cols-2 lg:grid-cols-3">
+            <template x-for="lv in levels" :key="lv.n">
+              <button
+                @click="setLevel(lv.n)"
+                class="btn-kid flex-col !items-start gap-1 px-5 py-3 text-left"
+                :class="$store.db.level === lv.n && '!bg-kid-accent-soft ring-4 ring-kid-accent'"
+                :aria-pressed="$store.db.level === lv.n"
+              >
+                <span class="text-lg font-black">
+                  Ниво <span x-text="lv.n"></span> · <span x-text="lv.name"></span>
+                </span>
+                <span class="text-sm font-semibold text-kid-muted">
+                  <span x-text="levelCount(lv.n)"></span> марки
+                </span>
+              </button>
+            </template>
+          </div>
+        </section>
+
+        <section class="card-kid p-6">
+          <h3 class="text-2xl font-bold">Марки</h3>
+          <p class="mt-1 text-kid-muted">
+            Отметката включва марката в игрите (FR-032), сърчицето я слага в „Любими“.
+          </p>
+          <div class="mt-4 grid grid-cols-1 gap-3 min-[600px]:grid-cols-2 lg:grid-cols-3">
+            <template x-for="b in brands" :key="b.id">
+              <div class="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white p-3">
+                <img
+                  :src="asset(b.logo)"
+                  alt=""
+                  aria-hidden="true"
+                  class="h-10 w-10 object-contain"
+                  draggable="false"
+                />
+                <div class="min-w-0 flex-1">
+                  <p class="truncate font-bold" x-text="b.nameBg"></p>
+                  <p class="truncate text-sm text-kid-muted" x-text="statusLabel(b.id)"></p>
+                </div>
+                <button
+                  @click="$store.db.toggleFav(b.id)"
+                  class="toggle-kid flex h-12 w-12 items-center justify-center text-xl"
+                  :aria-label="'Любима марка: ' + b.nameBg"
+                  x-text="$store.db.isFav(b.id) ? '❤️' : '🤍'"
+                ></button>
+                <input
+                  type="checkbox"
+                  class="toggle-kid h-8 w-8 accent-kid-accent"
+                  :checked="$store.db.isActive(b.id)"
+                  @change="$store.db.toggleActive(b.id)"
+                  :aria-label="'Активна марка: ' + b.nameBg"
+                />
+              </div>
+            </template>
+          </div>
+        </section>
+
+        <section class="card-kid space-y-3 p-6">
+          <h3 class="text-2xl font-bold">Напредък</h3>
+          <p class="text-lg">
+            Познава: <b x-text="stats.knows"></b> · Учи: <b x-text="stats.learning"></b> · Не е
+            упражнявана: <b x-text="stats.new"></b>
+          </p>
+          <button
+            @click="reset()"
+            class="btn-kid px-6 text-lg"
+            :class="confirmReset && '!bg-red-100'"
+            x-text="confirmReset ? 'Сигурни ли сте? Натиснете отново' : 'Нулирай напредъка'"
+          ></button>
+        </section>
+
+        <section class="card-kid space-y-3 p-6">
+          <h3 class="text-2xl font-bold">Приложение</h3>
+          <div class="flex flex-wrap gap-3">
+            <button
+              x-show="$store.ui.updateAvailable"
+              @click="applyUpdate()"
+              class="btn-kid bg-kid-accent-soft px-6 text-lg"
+            >
+              Обнови приложението
+            </button>
+            <button @click="reloadApp()" class="btn-kid px-6 text-lg">Презареди</button>
+          </div>
+          <p class="text-sm text-kid-muted">
+            Версия 1.0 · Работи без интернет · Без реклами, профили и проследяване
+          </p>
+        </section>
+      </div>
+    </main>
+  </body>
+</html>
