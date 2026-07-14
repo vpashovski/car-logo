@@ -265,9 +265,14 @@
       </template>
 
       <template x-if="!notEnough && target">
-        <!-- портрет: една над друга; пейзаж: една до друга — винаги максимално големи -->
+        <!-- 2: портрет колона / пейзаж ред; 3: същото по тройки; 4: решетка 2×2 -->
         <div
-          class="grid min-h-0 flex-1 items-stretch gap-6 p-4 portrait:grid-rows-2 landscape:grid-cols-2"
+          class="grid min-h-0 flex-1 items-stretch gap-4 p-4"
+          :class="{
+            'portrait:grid-rows-2 landscape:grid-cols-2': options.length === 2,
+            'portrait:grid-rows-3 landscape:grid-cols-3': options.length === 3,
+            'grid-cols-2 grid-rows-2': options.length === 4
+          }"
         >
           <template x-for="o in options" :key="target.id + ':' + o.id">
             <button
@@ -325,6 +330,21 @@
               />
             </label>
           </template>
+          <div class="flex min-h-16 items-center justify-between gap-4">
+            <span class="text-xl font-semibold">Отговори в „Познай“</span>
+            <div class="flex gap-2">
+              <template x-for="n in [2, 3, 4]" :key="n">
+                <button
+                  @click="$store.db.setSetting('answersCount', n)"
+                  class="btn-kid h-14 w-14 text-2xl"
+                  :class="$store.db.settings.answersCount === n && '!bg-kid-accent-soft ring-4 ring-kid-accent'"
+                  :aria-pressed="$store.db.settings.answersCount === n"
+                  :aria-label="n + ' отговора'"
+                  x-text="n"
+                ></button>
+              </template>
+            </div>
+          </div>
         </section>
 
         <section class="card-kid p-6">

@@ -74,9 +74,12 @@ export function registerQuiz(Alpine) {
         this._seqI += 1;
       }
 
-      const distractor = randOf(act.filter((b) => b.id !== target.id)); // FR-021
+      // Брой отговори по настройка (2–4), ограничен от активните марки.
+      // Дистракторите са уникални и само от активните (FR-021).
+      const count = Math.min([2, 3, 4].includes(s.answersCount) ? s.answersCount : 2, act.length);
+      const distractors = shuffle(act.filter((b) => b.id !== target.id)).slice(0, count - 1);
       this.target = target;
-      this.options = shuffle([target, distractor]); // FR-020: точно два отговора
+      this.options = shuffle([target, ...distractors]);
       this.ask();
     },
 

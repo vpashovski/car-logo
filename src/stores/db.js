@@ -13,6 +13,7 @@ function defaults() {
       shuffleLearn: true, // FR-015: нов ред при всяко влизане (изключва се от родителя)
       shuffleQuiz: true, // FR-026: фиксиран или разбъркан ред на въпросите
       smartPick: false, // умен подбор: грешените марки се падат по-често
+      answersCount: 2, // брой отговори в „Познай“ (2–4)
       autoNext: true, // FR-025: автоматичен следващ въпрос
     },
     level: 1, // избрано ниво (1–5), кумулативно
@@ -30,9 +31,14 @@ function sanitize(raw) {
   if (raw.schemaVersion !== SCHEMA_VERSION) return d; // място за бъдещи миграции
   const ids = new Set(BRANDS.map((b) => b.id));
   const cleanIds = (v, fallback) => (Array.isArray(v) ? v.filter((id) => ids.has(id)) : fallback);
+  const settings = {
+    ...d.settings,
+    ...(raw.settings && typeof raw.settings === 'object' ? raw.settings : {}),
+  };
+  if (![2, 3, 4].includes(settings.answersCount)) settings.answersCount = 2;
   return {
     ...d,
-    settings: { ...d.settings, ...(raw.settings && typeof raw.settings === 'object' ? raw.settings : {}) },
+    settings,
     level: Number.isInteger(raw.level) && raw.level >= 1 && raw.level <= 5 ? raw.level : 1,
     active: cleanIds(raw.active, d.active),
     favorites: cleanIds(raw.favorites, d.favorites),
