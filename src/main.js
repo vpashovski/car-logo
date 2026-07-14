@@ -9,18 +9,9 @@ document.addEventListener('alpine:init', () => {
   registerComponents(Alpine);
 });
 
-// PWA-005: контролирано обновяване — новата версия чака, докато
-// родителят натисне „Обнови приложението“ (PWA-006).
-const updateSW = registerSW({
-  onNeedRefresh() {
-    try {
-      Alpine.store('ui').updateAvailable = true;
-    } catch {
-      /* стартиране преди alpine:init — игнорираме */
-    }
-  },
-});
-window.__applyUpdate = () => updateSW(true);
+// Автоматично обновяване: service worker-ът проверява при всяко отваряне
+// и сам инсталира новата версия (registerType: 'autoUpdate').
+registerSW({ immediate: true });
 
 window.Alpine = Alpine;
 Alpine.start();

@@ -402,17 +402,11 @@
         <section class="card-kid space-y-3 p-6">
           <h3 class="text-2xl font-bold">Приложение</h3>
           <div class="flex flex-wrap gap-3">
-            <button
-              x-show="$store.ui.updateAvailable"
-              @click="applyUpdate()"
-              class="btn-kid bg-kid-accent-soft px-6 text-lg"
-            >
-              Обнови приложението
-            </button>
             <button @click="reloadApp()" class="btn-kid px-6 text-lg">Презареди</button>
           </div>
           <p class="text-sm text-kid-muted">
-            Версия 1.0 · Работи без интернет · Без реклами, профили и проследяване
+            Версия 1.0 · Обновява се автоматично · Работи без интернет · Без реклами, профили и
+            проследяване
           </p>
         </section>
       </div>

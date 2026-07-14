@@ -2,6 +2,5 @@
 export function registerUiStore(Alpine) {
   Alpine.store('ui', {
     screen: 'home',
-    updateAvailable: false, // PWA-006
   });
 }

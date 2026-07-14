@@ -99,12 +99,7 @@ export function registerParent(Alpine) {
       this.$store.db.resetProgress();
     },
 
-    // PWA-006: контролирано обновяване от родителя
-    applyUpdate() {
-      window.__applyUpdate?.();
-    },
-
-    // FR-045: защитено презареждане
+    // FR-045: защитено презареждане (прилага и чакаща нова версия)
     reloadApp() {
       location.reload();
     },
