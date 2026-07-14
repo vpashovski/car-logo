@@ -25,7 +25,9 @@ export default defineConfig({
         lang: 'bg',
         display: 'fullscreen',
         display_override: ['fullscreen', 'standalone'],
-        orientation: 'landscape', // KIOSK-005: таблет на стойка
+        // Без фиксирана ориентация — върти се със системата (телефон и таблет).
+        // При kiosk употреба ориентацията се заключва от Fully Kiosk (KIOSK-005).
+        orientation: 'any',
         start_url: base,
         scope: base,
         theme_color: '#0284c7',
