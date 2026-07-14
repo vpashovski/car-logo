@@ -26,35 +26,38 @@
   >
     <!-- ══════════ НАЧАЛЕН ЕКРАН (FR-001, FR-002) ══════════ -->
     <main x-show="screen === 'home'" x-cloak class="flex h-full flex-col p-6">
-      <h1 class="mt-2 text-center text-4xl font-black text-kid-accent">
+      <h1 class="mt-2 shrink-0 text-center text-4xl font-black text-kid-accent">
         <span aria-hidden="true">🚗</span> Коли
       </h1>
 
-      <div class="flex min-h-0 flex-1 items-center justify-center">
-        <div class="grid w-full max-w-4xl grid-cols-1 gap-6 min-[600px]:grid-cols-3">
+      <!-- бутоните се вместват в оставащата височина, без да застъпват заглавието -->
+      <div class="flex min-h-0 flex-1 items-center justify-center py-4">
+        <div
+          class="grid h-full max-h-[42rem] min-h-0 w-full max-w-4xl grid-cols-1 grid-rows-3 gap-4 min-[600px]:landscape:grid-cols-3 min-[600px]:landscape:grid-rows-1"
+        >
           <button
             @click="go('learn')"
-            class="btn-kid card-kid flex-col gap-3 py-10 text-4xl"
+            class="btn-kid card-kid min-h-0 flex-col gap-2 p-4"
             aria-label="Учим марки"
           >
-            <span class="text-8xl" aria-hidden="true">📖</span>
-            <span>Учим</span>
+            <span class="text-[min(13vh,6rem)] leading-none" aria-hidden="true">📖</span>
+            <span class="text-[min(5vh,2.5rem)] font-black">Учим</span>
           </button>
           <button
             @click="go('quiz')"
-            class="btn-kid card-kid flex-col gap-3 py-10 text-4xl"
+            class="btn-kid card-kid min-h-0 flex-col gap-2 p-4"
             aria-label="Познай марката"
           >
-            <span class="text-8xl" aria-hidden="true">❓</span>
-            <span>Познай</span>
+            <span class="text-[min(13vh,6rem)] leading-none" aria-hidden="true">❓</span>
+            <span class="text-[min(5vh,2.5rem)] font-black">Познай</span>
           </button>
           <button
             @click="go('favorites')"
-            class="btn-kid card-kid flex-col gap-3 py-10 text-4xl"
+            class="btn-kid card-kid min-h-0 flex-col gap-2 p-4"
             aria-label="Любими марки"
           >
-            <span class="text-8xl" aria-hidden="true">❤️</span>
-            <span>Любими</span>
+            <span class="text-[min(13vh,6rem)] leading-none" aria-hidden="true">❤️</span>
+            <span class="text-[min(5vh,2.5rem)] font-black">Любими</span>
           </button>
         </div>
       </div>
@@ -66,7 +69,7 @@
           @pointerup="cancelHold()"
           @pointerleave="cancelHold()"
           @pointercancel="cancelHold()"
-          class="btn-kid absolute bottom-4 right-4 !bg-transparent !shadow-none text-4xl opacity-40 transition-transform"
+          class="btn-kid absolute right-4 top-4 !bg-transparent !shadow-none text-4xl opacity-40 transition-transform"
           :class="holding && 'scale-125 opacity-80'"
           aria-label="Родителски настройки — задръжте бутона"
         >
