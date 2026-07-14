@@ -14,7 +14,6 @@ export function registerQuiz(Alpine) {
     locked: false,
     correctId: null,
     wrongId: null,
-    stars: [],
     _seq: [],
     _seqI: 0,
 
@@ -45,7 +44,6 @@ export function registerQuiz(Alpine) {
       this.locked = false;
       this.correctId = null;
       this.wrongId = null;
-      this.stars = [];
 
       const act = this.active;
       if (act.length < 2) {
@@ -121,7 +119,6 @@ export function registerQuiz(Alpine) {
         this.locked = true;
         this.correctId = brand.id;
         this.wrongId = null;
-        this.stars = [0, 1, 2, 3, 4];
         db.recordAnswer(this.target.id, true);
         playAsset(randOf(PRAISE_AUDIO));
         if (db.settings.autoNext) {

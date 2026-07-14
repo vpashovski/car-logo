@@ -7,6 +7,8 @@
   --color-kid-accent-soft: #bae6fd;
   --color-kid-good: #16a34a;
   --color-kid-good-soft: #bbf7d0;
+  --color-kid-bad: #dc2626;
+  --color-kid-bad-soft: #fecaca;
   --color-kid-warm: #f59e0b;
   --color-kid-heart: #e11d48;
   --color-kid-ink: #0f172a;
@@ -88,25 +90,36 @@
   60% { transform: translateX(6px); }
 }
 
-@keyframes kid-star {
-  0% { transform: translateY(0) scale(0.4); opacity: 0; }
-  30% { opacity: 1; }
-  100% { transform: translateY(-70px) scale(1.15); opacity: 0; }
+@keyframes kid-celebrate {
+  0% { transform: scale(0) rotate(-15deg); opacity: 0; }
+  35% { transform: scale(1.2) rotate(8deg); opacity: 1; }
+  60% { transform: scale(0.95) rotate(-4deg); opacity: 1; }
+  80% { transform: scale(1.05) rotate(0deg); opacity: 1; }
+  100% { transform: scale(1); opacity: 0; }
+}
+
+@keyframes kid-oops {
+  0% { transform: scale(0) rotate(0); opacity: 0; }
+  30% { transform: scale(1.1) rotate(-6deg); opacity: 1; }
+  55% { transform: scale(1) rotate(6deg); opacity: 1; }
+  100% { transform: scale(1) rotate(0); opacity: 0; }
 }
 
 .anim-pop { animation: kid-pop 500ms ease; }
 .anim-nudge { animation: kid-nudge 450ms ease; }
-.anim-star { animation: kid-star 900ms ease forwards; }
+.anim-celebrate { animation: kid-celebrate 1200ms ease forwards; }
+.anim-oops { animation: kid-oops 700ms ease forwards; }
 
 /* Изключване при системна или родителска настройка (5.3) */
 @media (prefers-reduced-motion: reduce) {
-  .anim-pop, .anim-nudge, .anim-star {
+  .anim-pop, .anim-nudge, .anim-celebrate, .anim-oops {
     animation: none;
   }
 }
 
 .no-animations .anim-pop,
 .no-animations .anim-nudge,
-.no-animations .anim-star {
+.no-animations .anim-celebrate,
+.no-animations .anim-oops {
   animation: none;
 }

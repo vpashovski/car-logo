@@ -133,11 +133,11 @@
       </template>
 
       <template x-if="brand">
-        <div class="flex min-h-0 flex-1 flex-col items-center justify-center gap-3">
-          <!-- UX-003: емблемата доминира екрана, без деформация -->
+        <div class="flex min-h-0 flex-1 flex-col items-center justify-center gap-2 py-2">
+          <!-- UX-003: емблемата взима цялото оставащо място — имената никога не се изрязват -->
           <button
             @click="speak()"
-            class="card-kid flex h-[48vh] w-auto max-w-[82vw] items-center justify-center p-6"
+            class="card-kid flex min-h-0 w-full max-w-xl flex-1 items-center justify-center p-6"
             :class="pop && 'anim-pop'"
             aria-label="Чуй името на марката"
           >
@@ -148,22 +148,36 @@
               draggable="false"
             />
           </button>
-          <!-- FR-011: българско и оригинално име, минимум 28px (UX-002) -->
-          <p class="text-5xl font-black" x-text="brand.nameBg"></p>
-          <p class="text-3xl font-semibold text-kid-muted" x-text="brand.name"></p>
+          <!-- FR-011: българско и оригинално име; плавен размер (на таблет ≥28px — UX-002) -->
+          <p
+            class="text-center font-black leading-tight text-[clamp(1.75rem,9vw,3rem)]"
+            x-text="brand.nameBg"
+          ></p>
+          <p
+            class="text-center font-semibold leading-tight text-kid-muted text-[clamp(1.125rem,5vw,1.875rem)]"
+            x-text="brand.name"
+          ></p>
         </div>
       </template>
 
       <!-- FR-013: големи бутони за навигация -->
-      <div x-show="items.length" class="flex items-center justify-center gap-6 pb-2">
-        <button @click="prev()" class="btn-kid h-24 w-36 text-5xl" aria-label="Предишна марка">
-          <span aria-hidden="true">◀️</span>
+      <!-- SVG вместо емоджи: емоджи стрелките се оцветяват различно на всяко устройство -->
+      <div x-show="items.length" class="flex items-center justify-center gap-6 pb-2 text-kid-accent">
+        <button @click="prev()" class="btn-kid h-24 w-36" aria-label="Предишна марка">
+          <svg viewBox="0 0 24 24" class="h-12 w-12 text-kid-accent" fill="currentColor" aria-hidden="true">
+            <path d="M16 4.7v14.6a1 1 0 0 1-1.6.8L5.8 12.8a1 1 0 0 1 0-1.6l8.6-7.3a1 1 0 0 1 1.6.8Z" />
+          </svg>
         </button>
-        <button @click="speak()" class="btn-kid h-24 w-36 text-5xl" aria-label="Чуй името">
-          <span aria-hidden="true">🔊</span>
+        <button @click="speak()" class="btn-kid h-24 w-36" aria-label="Чуй името">
+          <svg viewBox="0 0 24 24" class="h-12 w-12 text-kid-accent" fill="currentColor" aria-hidden="true">
+            <path d="M3 9.5h3.8L12 5v14l-5.2-4.5H3a.8.8 0 0 1-.8-.8v-3.4a.8.8 0 0 1 .8-.8Z" />
+            <path d="M15 8.6a4.4 4.4 0 0 1 0 6.8M17.6 6a8 8 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+          </svg>
         </button>
-        <button @click="next()" class="btn-kid h-24 w-36 text-5xl" aria-label="Следваща марка">
-          <span aria-hidden="true">▶️</span>
+        <button @click="next()" class="btn-kid h-24 w-36" aria-label="Следваща марка">
+          <svg viewBox="0 0 24 24" class="h-12 w-12 text-kid-accent" fill="currentColor" aria-hidden="true">
+            <path d="M8 4.7v14.6a1 1 0 0 0 1.6.8l8.6-7.3a1 1 0 0 0 0-1.6L9.6 3.9a1 1 0 0 0-1.6.8Z" />
+          </svg>
         </button>
       </div>
     </main>
@@ -223,33 +237,49 @@
         </div>
       </template>
 
-      <div x-show="items.length" class="flex items-center justify-center gap-6 pb-2">
-        <button @click="prev()" class="btn-kid h-24 w-36 text-5xl" aria-label="Предишна марка">
-          <span aria-hidden="true">◀️</span>
+      <!-- SVG вместо емоджи: емоджи стрелките се оцветяват различно на всяко устройство -->
+      <div x-show="items.length" class="flex items-center justify-center gap-6 pb-2 text-kid-accent">
+        <button @click="prev()" class="btn-kid h-24 w-36" aria-label="Предишна марка">
+          <svg viewBox="0 0 24 24" class="h-12 w-12 text-kid-accent" fill="currentColor" aria-hidden="true">
+            <path d="M16 4.7v14.6a1 1 0 0 1-1.6.8L5.8 12.8a1 1 0 0 1 0-1.6l8.6-7.3a1 1 0 0 1 1.6.8Z" />
+          </svg>
         </button>
-        <button @click="speak()" class="btn-kid h-24 w-36 text-5xl" aria-label="Чуй името">
-          <span aria-hidden="true">🔊</span>
+        <button @click="speak()" class="btn-kid h-24 w-36" aria-label="Чуй името">
+          <svg viewBox="0 0 24 24" class="h-12 w-12 text-kid-accent" fill="currentColor" aria-hidden="true">
+            <path d="M3 9.5h3.8L12 5v14l-5.2-4.5H3a.8.8 0 0 1-.8-.8v-3.4a.8.8 0 0 1 .8-.8Z" />
+            <path d="M15 8.6a4.4 4.4 0 0 1 0 6.8M17.6 6a8 8 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+          </svg>
         </button>
-        <button @click="next()" class="btn-kid h-24 w-36 text-5xl" aria-label="Следваща марка">
-          <span aria-hidden="true">▶️</span>
+        <button @click="next()" class="btn-kid h-24 w-36" aria-label="Следваща марка">
+          <svg viewBox="0 0 24 24" class="h-12 w-12 text-kid-accent" fill="currentColor" aria-hidden="true">
+            <path d="M8 4.7v14.6a1 1 0 0 0 1.6.8l8.6-7.3a1 1 0 0 0 0-1.6L9.6 3.9a1 1 0 0 0-1.6.8Z" />
+          </svg>
         </button>
       </div>
     </main>
 
     <!-- ══════════ РЕЖИМ „ПОЗНАЙ“ (4.3) ══════════ -->
     <main x-show="screen === 'quiz'" x-cloak x-data="quizScreen" class="flex h-full flex-col p-4">
-      <div class="flex items-center gap-4">
-        <button @click="go('home')" class="btn-kid w-24 text-3xl" aria-label="Начало">
+      <div class="flex items-center gap-3 min-[600px]:gap-4">
+        <button @click="go('home')" class="btn-kid w-16 shrink-0 text-3xl min-[600px]:w-24" aria-label="Начало">
           <span aria-hidden="true">🏠</span>
         </button>
         <template x-if="target && !notEnough">
           <button
             @click="ask()"
-            class="btn-kid flex-1 justify-start gap-4 px-6 py-3"
+            class="btn-kid min-w-0 flex-1 justify-start gap-3 px-5 py-3 text-left"
             aria-label="Чуй въпроса отново"
           >
-            <span class="text-4xl" aria-hidden="true">🔊</span>
-            <span class="text-4xl font-black">Къде е <span x-text="target.nameBg"></span>?</span>
+            <svg viewBox="0 0 24 24" class="h-10 w-10 shrink-0 text-kid-accent" fill="currentColor" aria-hidden="true">
+              <path d="M3 9.5h3.8L12 5v14l-5.2-4.5H3a.8.8 0 0 1-.8-.8v-3.4a.8.8 0 0 1 .8-.8Z" />
+              <path d="M15 8.6a4.4 4.4 0 0 1 0 6.8M17.6 6a8 8 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+            </svg>
+            <!-- плавен размер по ширината на екрана (на таблет ≥28px — UX-002);
+                 break-words пази от щръкване при дълга единична дума -->
+            <span
+              class="min-w-0 break-words font-black leading-tight text-[clamp(1.25rem,6vw,2.25rem)]"
+              >Къде е <span x-text="target.nameBg"></span>?</span
+            >
           </button>
         </template>
       </div>
@@ -277,10 +307,10 @@
           <template x-for="o in options" :key="target.id + ':' + o.id">
             <button
               @click="pick(o)"
-              class="card-kid relative flex min-h-0 min-w-0 items-center justify-center p-6"
+              class="card-kid relative flex min-h-0 min-w-0 items-center justify-center overflow-hidden p-6"
               :class="{
                 'ring-8 ring-kid-good !bg-kid-good-soft anim-pop': correctId === o.id,
-                'anim-nudge opacity-70': wrongId === o.id
+                'ring-8 ring-kid-bad !bg-kid-bad-soft anim-nudge': wrongId === o.id
               }"
               :aria-label="o.nameBg"
             >
@@ -293,12 +323,40 @@
               />
               <template x-if="correctId === o.id">
                 <div
-                  class="pointer-events-none absolute inset-0 flex items-center justify-center gap-4"
+                  class="pointer-events-none absolute inset-0 flex items-center justify-center"
                   aria-hidden="true"
                 >
-                  <template x-for="s in stars" :key="s">
-                    <span class="anim-star text-5xl" :style="`animation-delay:${s * 90}ms`">⭐</span>
-                  </template>
+                  <!-- зелена отметка без фон — SVG, за еднакъв цвят на всяко устройство -->
+                  <svg
+                    viewBox="0 0 24 24"
+                    class="anim-celebrate h-[min(22vw,22vh,7rem)] w-[min(22vw,22vh,7rem)] text-kid-good"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="3.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M4 12.8 9.3 18 20 6.5" />
+                  </svg>
+                </div>
+              </template>
+              <!-- FR-023: грешният отговор получава мек, ненаказателен знак -->
+              <template x-if="wrongId === o.id">
+                <div
+                  class="pointer-events-none absolute inset-0 flex items-center justify-center"
+                  aria-hidden="true"
+                >
+                  <!-- червено X без фон — SVG, огледално на отметката -->
+                  <svg
+                    viewBox="0 0 24 24"
+                    class="anim-oops h-[min(18vw,18vh,5rem)] w-[min(18vw,18vh,5rem)] text-kid-bad"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="3.5"
+                    stroke-linecap="round"
+                  >
+                    <path d="M6 6l12 12M18 6 6 18" />
+                  </svg>
                 </div>
               </template>
             </button>
