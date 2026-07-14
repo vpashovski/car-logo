@@ -25,8 +25,10 @@ export default defineConfig({
         short_name: 'Коли',
         description: 'Детска игра за учене и разпознаване на автомобилни марки',
         lang: 'bg',
-        display: 'fullscreen',
-        display_override: ['fullscreen', 'standalone'],
+        // standalone вместо fullscreen: fullscreen WebAPK крашва при
+        // стартиране на стари Android устройства (напр. Android 7);
+        // цял екран за kiosk таблета се осигурява от Fully Kiosk.
+        display: 'standalone',
         // Без фиксирана ориентация — върти се със системата (телефон и таблет).
         // При kiosk употреба ориентацията се заключва от Fully Kiosk (KIOSK-005).
         orientation: 'any',
