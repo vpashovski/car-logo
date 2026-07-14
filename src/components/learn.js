@@ -40,9 +40,10 @@ export function registerLearn(Alpine) {
       this.i = 0;
     },
 
+    // Марката се изговаря САМО при натискане на 🔊/емблемата —
+    // никога автоматично, за да може детето първо само да отговори.
     enter() {
       this.rebuild();
-      if (this.brand && this.$store.db.settings.autoSpeak) this.speak();
     },
 
     speak() {
@@ -60,8 +61,7 @@ export function registerLearn(Alpine) {
       if (!this.items.length) return;
       stopAudio(); // AC-13: звукът спира при смяна на марка
       this.i = (this.i + d + this.items.length) % this.items.length; // FR-015: циклично
-      if (this.$store.db.settings.autoSpeak) this.speak();
-      else this.bounce();
+      this.bounce();
     },
     next() {
       this.step(1);

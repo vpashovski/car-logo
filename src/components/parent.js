@@ -66,7 +66,6 @@ export function registerParent(Alpine) {
 
     settingsRows: [
       { key: 'sound', label: 'Звук' },
-      { key: 'autoSpeak', label: 'Автоматично произнасяне' },
       { key: 'animations', label: 'Анимации' },
       { key: 'shuffleLearn', label: 'Разбъркан ред в „Учим“' },
       { key: 'shuffleQuiz', label: 'Разбъркани въпроси в „Познай“' },
