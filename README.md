@@ -40,8 +40,9 @@ npm run generate-audio  # еднократно: TTS произношение (в
 
 ## Публикуване и инсталиране
 
-Всеки push към `main` се build-ва и публикува автоматично в GitHub Pages
-(`.github/workflows/deploy.yml`): https://vpashovski.github.io/car-logo/
+Всеки push към `main` се build-ва и публикува автоматично на собствения
+сървър през rsync/SSH (`.github/workflows/deploy-server.yml`, конфигуриран
+през GitHub secrets): https://car-logo.vpashovski.eu
 
 Инсталираното PWA се обновява само̀ при отваряне с интернет (autoUpdate).
 
