@@ -9,7 +9,7 @@ function defaults() {
     schemaVersion: SCHEMA_VERSION,
     settings: {
       sound: true,
-      autoSpeak: true, // автоматично произнасяне при смяна на марка
+      autoSpeak: false, // произнасяне само при натискане на 🔊/емблемата
       animations: true,
       shuffleLearn: true, // FR-015: нов ред при всяко влизане (изключва се от родителя)
       shuffleQuiz: true, // FR-026: фиксиран или разбъркан ред на въпросите

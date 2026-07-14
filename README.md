@@ -26,17 +26,17 @@ npm run generate-audio  # TTS произношение (виж „Аудио“ 
 4. За kiosk режим: Fully Kiosk Browser със start URL адреса на приложението,
    или Android screen pinning.
 
-## Аудио (планирано за следваща версия)
+## Аудио
 
-Произношението е проектирано, но още не е генерирано — приложението тихо
-пропуска липсващите файлове. За активиране: генерирай mp3 файловете в
-`public/audio/name/<id>.mp3`, `public/audio/question/<id>.mp3` и
-`public/audio/ui/*.mp3` (виж `scripts/generate-audio.mjs`) и направи нов build.
-Никаква промяна по кода не е нужна.
+Българското произношение (130 mp3: име + въпрос за всяка марка + реплики за
+обратна връзка) се генерира еднократно с `npm run generate-audio` — Microsoft
+Edge TTS, глас `bg-BG-KalinaNeural`, през `msedge-tts` v2+ (v1.x не работи —
+старият endpoint е спрян). Файловете са в `public/audio/{name,question,ui}/` и
+влизат в offline precache. При нова марка: запис в `brands.js` →
+`npm run fetch-logos` → `npm run generate-audio` → build.
 
-Бележка: `msedge-tts` пакетът в момента не се свързва (Microsoft смениха
-endpoint-а със защитен токен) — при добавянето на аудиото използвай
-поддържана алтернатива (напр. Python `edge-tts`) или запиши родителски глас.
+По подразбиране марките се изговарят само при натискане на 🔊/емблемата;
+автоматичното произнасяне се включва от родителските настройки.
 
 ## Структура
 
