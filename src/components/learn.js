@@ -30,7 +30,11 @@ export function registerLearn(Alpine) {
 
     rebuild() {
       const db = this.$store.db;
-      let list = favOnly ? BRANDS.filter((b) => db.isFav(b.id)) : [...BRANDS];
+      // „Учим“ показва само активните марки (нивото важи за всички режими);
+      // „Любими“ показва избраните независимо от нивото — детето ги е поискало.
+      let list = favOnly
+        ? BRANDS.filter((b) => db.isFav(b.id))
+        : BRANDS.filter((b) => db.isActive(b.id));
       if (db.settings.shuffleLearn) list = shuffle(list); // FR-015
       this.items = list;
       this.i = 0;

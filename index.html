@@ -119,6 +119,16 @@
         </button>
       </div>
 
+      <!-- аналог на FR-034: без активни марки — съобщение към родителя -->
+      <template x-if="!items.length">
+        <div class="flex flex-1 items-center justify-center p-6 text-center">
+          <p class="max-w-2xl text-3xl font-bold text-kid-muted">
+            Няма активни марки. Родител може да ги включи от настройките
+            <span aria-hidden="true">⚙️</span>
+          </p>
+        </div>
+      </template>
+
       <template x-if="brand">
         <div class="flex min-h-0 flex-1 flex-col items-center justify-center gap-3">
           <!-- UX-003: емблемата доминира екрана, без деформация -->
@@ -142,7 +152,7 @@
       </template>
 
       <!-- FR-013: големи бутони за навигация -->
-      <div class="flex items-center justify-center gap-6 pb-2">
+      <div x-show="items.length" class="flex items-center justify-center gap-6 pb-2">
         <button @click="prev()" class="btn-kid h-24 w-36 text-5xl" aria-label="Предишна марка">
           <span aria-hidden="true">◀️</span>
         </button>
