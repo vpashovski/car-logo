@@ -55,7 +55,10 @@ export function registerQuiz(Alpine) {
       }
 
       let target;
-      if (this.$store.db.settings.shuffleQuiz) {
+      const s = this.$store.db.settings;
+      if (s.smartPick) {
+        target = this.pickSmart(act);
+      } else if (s.shuffleQuiz) {
         target = randOf(act);
         // без повторение на същия въпрос два пъти подред
         if (this.target && act.length > 2 && target.id === this.target.id) {
@@ -75,6 +78,31 @@ export function registerQuiz(Alpine) {
       this.target = target;
       this.options = shuffle([target, distractor]); // FR-020: точно два отговора
       this.ask();
+    },
+
+    // Умен подбор: претеглено случайно теглене по напредъка.
+    // Неупражнявана марка — тегло 3, учи се — 2 (+2, ако грешните
+    // отговори надвишават верните), позната — 1. Знаените не изчезват,
+    // само се падат по-рядко.
+    pickSmart(act) {
+      const db = this.$store.db;
+      const pool =
+        this.target && act.length > 2 ? act.filter((b) => b.id !== this.target.id) : act;
+      let total = 0;
+      const weighted = pool.map((b) => {
+        const status = db.statusOf(b.id);
+        const p = db.progress[b.id];
+        let w = status === 'new' ? 3 : status === 'learning' ? 2 : 1;
+        if (p && p.w > p.c) w += 2;
+        total += w;
+        return [b, w];
+      });
+      let r = Math.random() * total;
+      for (const [b, w] of weighted) {
+        r -= w;
+        if (r <= 0) return b;
+      }
+      return pool[pool.length - 1];
     },
 
     ask() {

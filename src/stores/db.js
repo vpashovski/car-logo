@@ -12,6 +12,7 @@ function defaults() {
       animations: true,
       shuffleLearn: true, // FR-015: нов ред при всяко влизане (изключва се от родителя)
       shuffleQuiz: true, // FR-026: фиксиран или разбъркан ред на въпросите
+      smartPick: false, // умен подбор: грешените марки се падат по-често
       autoNext: true, // FR-025: автоматичен следващ въпрос
     },
     level: 1, // избрано ниво (1–5), кумулативно

@@ -69,6 +69,7 @@ export function registerParent(Alpine) {
       { key: 'animations', label: 'Анимации' },
       { key: 'shuffleLearn', label: 'Разбъркан ред в „Учим“' },
       { key: 'shuffleQuiz', label: 'Разбъркани въпроси в „Познай“' },
+      { key: 'smartPick', label: 'Умен подбор (трудните марки по-често)' },
       { key: 'autoNext', label: 'Автоматичен следващ въпрос' },
     ],
 
