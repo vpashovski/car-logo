@@ -1,0 +1,67 @@
+name: Deploy to server
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-server
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      # Докато secrets за сървъра не са зададени, job-ът минава „зелен“, но не прави нищо.
+      - name: Проверка дали deploy към сървъра е конфигуриран
+        id: cfg
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+        run: |
+          if [ -n "$DEPLOY_HOST" ] && [ -n "$DEPLOY_PATH" ]; then
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            echo "Secrets за сървъра не са зададени — deploy-ът се пропуска."
+          fi
+
+      - uses: actions/checkout@v4
+        if: steps.cfg.outputs.enabled == 'true'
+
+      - uses: actions/setup-node@v4
+        if: steps.cfg.outputs.enabled == 'true'
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+        if: steps.cfg.outputs.enabled == 'true'
+
+      # На собствения сървър сайтът живее в корена на домейна (BASE_PATH по подразбиране е /)
+      - run: npm run build
+        if: steps.cfg.outputs.enabled == 'true'
+
+      - name: Подготовка на SSH
+        if: steps.cfg.outputs.enabled == 'true'
+        env:
+          SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          HOST: ${{ secrets.DEPLOY_HOST }}
+          PORT: ${{ secrets.DEPLOY_PORT || '22' }}
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/id_deploy
+          chmod 600 ~/.ssh/id_deploy
+          ssh-keyscan -p "$PORT" "$HOST" >> ~/.ssh/known_hosts
+
+      - name: Качване на dist (rsync)
+        if: steps.cfg.outputs.enabled == 'true'
+        env:
+          HOST: ${{ secrets.DEPLOY_HOST }}
+          USER: ${{ secrets.DEPLOY_USER }}
+          PORT: ${{ secrets.DEPLOY_PORT || '22' }}
+          TARGET: ${{ secrets.DEPLOY_PATH }}
+        run: |
+          ssh -i ~/.ssh/id_deploy -p "$PORT" "$USER@$HOST" "mkdir -p '$TARGET'"
+          rsync -az --delete -e "ssh -i ~/.ssh/id_deploy -p $PORT" dist/ "$USER@$HOST:$TARGET/"
