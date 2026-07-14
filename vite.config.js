@@ -39,8 +39,10 @@ export default defineConfig({
         ],
       },
       workbox: {
-        // PWA-002: precache на shell, данни, емблеми и аудио — пълен offline
-        globPatterns: ['**/*.{js,css,html,png,svg,mp3,webmanifest}'],
+        // PWA-002: precache на shell, данни, емблеми и аудио — пълен offline.
+        // manifest.webmanifest нарочно НЕ е в precache: инсталацията трябва
+        // винаги да вижда актуалния manifest (ориентация, икони), не кеширан.
+        globPatterns: ['**/*.{js,css,html,png,svg,mp3}'],
         cleanupOutdatedCaches: true,
         navigateFallback: base + 'index.html',
       },
