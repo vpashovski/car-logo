@@ -20,7 +20,6 @@ function defaults() {
     active: BRANDS.filter((b) => b.enabledByDefault).map((b) => b.id),
     favorites: [],
     progress: {}, // brandId -> { c: брой верни, w: брой грешни, last: 'YYYY-MM-DD' }
-    lastScreen: 'home',
   };
 }
 
@@ -43,7 +42,6 @@ function sanitize(raw) {
     active: cleanIds(raw.active, d.active),
     favorites: cleanIds(raw.favorites, d.favorites),
     progress: raw.progress && typeof raw.progress === 'object' ? raw.progress : {},
-    lastScreen: typeof raw.lastScreen === 'string' ? raw.lastScreen : 'home',
   };
 }
 
@@ -61,10 +59,10 @@ export function registerDbStore(Alpine) {
 
     save() {
       try {
-        const { schemaVersion, settings, level, active, favorites, progress, lastScreen } = this;
+        const { schemaVersion, settings, level, active, favorites, progress } = this;
         localStorage.setItem(
           KEY,
-          JSON.stringify({ schemaVersion, settings, level, active, favorites, progress, lastScreen })
+          JSON.stringify({ schemaVersion, settings, level, active, favorites, progress })
         );
       } catch {
         /* пълен/забранен storage не бива да блокира UI (NFR-003) */
@@ -115,11 +113,6 @@ export function registerDbStore(Alpine) {
 
     resetProgress() {
       this.progress = {};
-      this.save();
-    },
-
-    setLastScreen(s) {
-      this.lastScreen = s;
       this.save();
     },
 

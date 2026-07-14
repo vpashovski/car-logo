@@ -1,12 +1,13 @@
 // Коренов компонент: екранен рутер + общи помощници за шаблоните
-import { navigate, initHistory, SAFE_SCREENS } from '../lib/nav.js';
+import { navigate, initHistory, lastSessionScreen, SAFE_SCREENS } from '../lib/nav.js';
 import { asset } from '../lib/util.js';
 
 export function registerAppRoot(Alpine) {
   Alpine.data('appRoot', () => ({
     init() {
-      // FR-003 / KIOSK-004: възстановяване на последния БЕЗОПАСЕН екран
-      const last = this.$store.db.lastScreen;
+      // Продължаваме само в рамките на същата сесия (презареждане/възстановен
+      // таб); ново стартиране започва от началния екран (KIOSK-004).
+      const last = lastSessionScreen();
       initHistory(SAFE_SCREENS.includes(last) ? last : 'home');
     },
     get screen() {

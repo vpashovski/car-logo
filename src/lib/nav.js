@@ -3,12 +3,31 @@ import { stopAudio } from './audio.js';
 
 export const SAFE_SCREENS = ['home', 'learn', 'quiz', 'favorites'];
 
+// Последният екран живее в sessionStorage: минимизиране/презареждане в
+// същата сесия продължава откъдето е било, но ново стартиране на
+// приложението винаги започва от началния екран.
+const LAST_SCREEN_KEY = 'car-logo.last-screen';
+
+export function lastSessionScreen() {
+  try {
+    return sessionStorage.getItem(LAST_SCREEN_KEY);
+  } catch {
+    return null;
+  }
+}
+
 // Смяна на екрана без запис в историята (използва се и от popstate)
 function applyScreen(screen) {
   stopAudio(); // AC-13
   Alpine.store('ui').screen = screen;
-  // FR-003 / KIOSK-004: родителският екран никога не е "последен безопасен"
-  if (SAFE_SCREENS.includes(screen)) Alpine.store('db').setLastScreen(screen);
+  // KIOSK-004: родителският екран никога не е "последен безопасен"
+  if (SAFE_SCREENS.includes(screen)) {
+    try {
+      sessionStorage.setItem(LAST_SCREEN_KEY, screen);
+    } catch {
+      /* напр. забранен storage — стартираме от начало */
+    }
+  }
   window.dispatchEvent(new CustomEvent('screen-changed', { detail: screen }));
 }
 
